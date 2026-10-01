@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Panti Asuhan Asih
 
-## Getting Started
+Situs Yayasan Panti Asuhan Anak Luar Biasa Asih (Madiun) beserta dashboard admin.
+Next.js (App Router) + Neon Postgres (Drizzle).
 
-First, run the development server:
+## Menjalankan secara lokal
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Salin `.env.example` menjadi `.env.local` dan isi nilainya.
+2. `npm install`
+3. `npm run db:push` — membuat tabel di database.
+4. `npm run db:seed` — mengisi data awal dan akun admin (hanya tabel yang masih kosong).
+5. `npm run dev`, lalu buka `http://localhost:3000`. Dashboard ada di `/admin`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment variable
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Nama | Dipakai untuk |
+| --- | --- |
+| `DATABASE_URL` | Koneksi Neon Postgres (wajib, juga saat build) |
+| `SESSION_SECRET` | Menandatangani cookie sesi admin (wajib) |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Hanya dibaca `npm run db:seed` untuk membuat akun admin pertama |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy ke Vercel
 
-## Learn More
+1. Di Project Settings → Environment Variables, tambahkan `DATABASE_URL` dan
+   `SESSION_SECRET` dengan nilai yang sama seperti di `.env.local`.
+2. Deploy. Halaman utama dibuat saat build dari isi database, jadi database harus
+   sudah di-push dan di-seed sebelum deploy pertama.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fungsi server dijalankan di region `sin1` (lihat `vercel.json`) agar dekat dengan
+database Neon di Singapura.
