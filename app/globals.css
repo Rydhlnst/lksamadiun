@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-jakarta);
+  --color-navy: #1e3a5f;
+  --color-navy-dark: #162c49;
+  --color-gold: #f5b70a;
+  --color-gold-dark: #d99a00;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 3.5rem;
+}
+
+body {
+  background: #ffffff;
+  color: #0f172a;
+}
