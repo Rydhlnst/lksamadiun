@@ -93,7 +93,7 @@ export const businesses = [
     icon: "egg",
     accent: "amber",
     title: "Peternakan",
-    description: "Ayam, bebek petelur, mentok, dan soang.",
+    description: "Ayam, bebek petelur, mentok, soang, dan domba.",
     image: "/images/peternakan-bebek.jpg",
   },
   {
@@ -140,6 +140,12 @@ export const gallery = [
   { src: "/images/ruang-serbaguna.jpg", alt: "Ruang serbaguna panti" },
   { src: "/images/kebun-kacang.jpg", alt: "Kebun sayur panti" },
   { src: "/images/sekretariat.jpg", alt: "Sekretariat panti" },
+  { src: "/images/makan-bersama.jpg", alt: "Anak-anak makan bersama" },
+  { src: "/images/hidangan-bersama.jpg", alt: "Hidangan makan bersama di panti" },
+  { src: "/images/saung-bambu.jpg", alt: "Saung bambu di lingkungan panti" },
+  { src: "/images/domba.jpg", alt: "Domba di kandang ternak" },
+  { src: "/images/kandang-ternak.jpg", alt: "Kandang ternak panti" },
+  { src: "/images/telur-asin.jpg", alt: "Pengolahan telur asin" },
 ];
 
 export const accreditation = {
