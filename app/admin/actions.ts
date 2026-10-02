@@ -12,7 +12,6 @@ import {
   legalities,
   listGroups,
   listItems,
-  media,
   profile,
   type ListGroup,
 } from "@/lib/db/schema";
@@ -25,6 +24,7 @@ import {
 } from "@/lib/entities";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { createSession, deleteSession, requireAdmin } from "@/lib/session";
+import { isAllowedImageUrl, removeImage, storeImage } from "@/lib/storage";
 
 const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -51,7 +51,7 @@ function parseFields(fields: Field[], formData: FormData) {
     if (field.type === "select" && !field.options?.includes(raw)) {
       errors[field.name] = "Pilihan tidak valid";
     }
-    if (field.type === "image" && !/^\/(images|media)\/[\w.-]+$/.test(raw)) {
+    if (field.type === "image" && !isAllowedImageUrl(raw)) {
       errors[field.name] = "Gambar tidak valid";
     }
     values[field.name] = raw;
@@ -67,9 +67,17 @@ function refresh() {
 const isListGroup = (key: string): key is ListGroup =>
   (listGroups as readonly string[]).includes(key);
 
-async function dropMedia(url: string | null | undefined) {
-  const id = url?.match(/^\/media\/(\d+)$/)?.[1];
-  if (id) await db.delete(media).where(eq(media.id, Number(id)));
+// Removes stored images that a save replaced or cleared.
+async function dropReplaced(
+  before: Record<string, unknown> | undefined,
+  after: Record<string, unknown>,
+) {
+  if (!before) return;
+  for (const [name, old] of Object.entries(before)) {
+    if (typeof old === "string" && name in after && after[name] !== old) {
+      await removeImage(old);
+    }
+  }
 }
 
 export async function login(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -123,12 +131,12 @@ export async function uploadImage(formData: FormData): Promise<{ url?: string; e
   }
   if (file.size > MAX_UPLOAD_BYTES) return { error: "Ukuran gambar maksimal 3 MB" };
 
-  const data = Buffer.from(await file.arrayBuffer()).toString("base64");
-  const [row] = await db
-    .insert(media)
-    .values({ mime: file.type, data })
-    .returning({ id: media.id });
-  return { url: `/media/${row.id}` };
+  try {
+    return { url: await storeImage(file) };
+  } catch (err) {
+    console.error(err);
+    return { error: "Gagal menyimpan gambar. Coba lagi." };
+  }
 }
 
 export async function saveProfile(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -138,10 +146,19 @@ export async function saveProfile(_prev: FormState, formData: FormData): Promise
   if (Object.keys(errors).length) {
     return { errors, message: "Periksa kembali isian yang ditandai" };
   }
+  const [before] = await db.select().from(profile).where(eq(profile.id, 1));
   await db
     .update(profile)
     .set(values as Partial<typeof profile.$inferInsert>)
     .where(eq(profile.id, 1));
+  const images = profileSections
+    .flatMap((s) => s.fields)
+    .filter((f) => f.type === "image")
+    .map((f) => f.name);
+  await dropReplaced(
+    Object.fromEntries(images.map((n) => [n, before?.[n as keyof typeof before]])),
+    values,
+  );
   refresh();
   return { ok: true, message: "Profil tersimpan" };
 }
@@ -177,12 +194,18 @@ export async function saveItem(
       image: v.image as string | null,
       sortOrder,
     };
-    if (id) await db.update(businesses).set(row).where(eq(businesses.id, id));
-    else await db.insert(businesses).values(row);
+    if (id) {
+      const [before] = await db.select().from(businesses).where(eq(businesses.id, id));
+      await db.update(businesses).set(row).where(eq(businesses.id, id));
+      await dropReplaced({ image: before?.image }, row);
+    } else await db.insert(businesses).values(row);
   } else if (key === "galeri") {
     const row = { image: v.image as string, caption: v.caption as string, sortOrder };
-    if (id) await db.update(gallery).set(row).where(eq(gallery.id, id));
-    else await db.insert(gallery).values(row);
+    if (id) {
+      const [before] = await db.select().from(gallery).where(eq(gallery.id, id));
+      await db.update(gallery).set(row).where(eq(gallery.id, id));
+      await dropReplaced({ image: before?.image }, row);
+    } else await db.insert(gallery).values(row);
   } else if (key === "rekening") {
     const row = { bank: v.bank as string, number: v.number as string, sortOrder };
     if (id) await db.update(bankAccounts).set(row).where(eq(bankAccounts.id, id));
@@ -205,10 +228,10 @@ export async function deleteItem(key: EntityKey, id: number) {
     await db.delete(listItems).where(eq(listItems.id, id));
   } else if (key === "usaha") {
     const [row] = await db.delete(businesses).where(eq(businesses.id, id)).returning();
-    await dropMedia(row?.image);
+    await removeImage(row?.image);
   } else if (key === "galeri") {
     const [row] = await db.delete(gallery).where(eq(gallery.id, id)).returning();
-    await dropMedia(row?.image);
+    await removeImage(row?.image);
   } else if (key === "rekening") {
     await db.delete(bankAccounts).where(eq(bankAccounts.id, id));
   } else if (key === "legalitas") {

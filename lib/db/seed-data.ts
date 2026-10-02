@@ -9,7 +9,7 @@ export const site = {
   phone: "08123141154",
   whatsapp: "https://wa.me/628123141154",
   email: "pantiasihwungu309@gmail.com",
-  website: "https://pantiasuhanasih.or.id/",
+  website: "https://pantiasihmadiun.web.id/",
   maps: "https://maps.app.goo.gl/n1PkSwuy7GCfkMrB8",
   mapsEmbed:
     "https://www.google.com/maps?q=Jalan+Raya+Dungus+No+309+Karangrejo+Wungu+Madiun&output=embed",

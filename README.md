@@ -19,6 +19,18 @@ Next.js (App Router) + Neon Postgres (Drizzle).
 | `SESSION_SECRET` | Menandatangani cookie sesi admin (wajib) |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Hanya dibaca `npm run db:seed` untuk membuat akun admin pertama |
 
+## Penyimpanan foto
+
+Foto bawaan ada di `public/images`. Foto yang diunggah lewat dashboard disimpan di:
+
+- **Cloudflare R2**, jika `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+  `R2_BUCKET`, dan `R2_PUBLIC_URL` semuanya terisi. Bucket harus bisa diakses publik
+  (domain `r2.dev` atau domain kustom) dan token API-nya punya izin Object Read & Write.
+- **Database** (tabel `media`), jika R2 belum diatur.
+
+Halaman Ringkasan di dashboard menampilkan penyimpanan mana yang sedang aktif. Foto
+lama tetap tampil setelah berpindah penyimpanan, karena database menyimpan URL lengkapnya.
+
 ## Deploy ke Vercel
 
 1. Di Project Settings → Environment Variables, tambahkan `DATABASE_URL` dan

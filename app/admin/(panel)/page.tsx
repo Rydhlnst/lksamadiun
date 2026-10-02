@@ -9,6 +9,7 @@ import {
 } from "@/lib/data";
 import { entities, type EntityKey } from "@/lib/entities";
 import { requireAdmin } from "@/lib/session";
+import { storageDriver } from "@/lib/storage";
 
 export default async function DashboardPage() {
   await requireAdmin();
@@ -41,6 +42,10 @@ export default async function DashboardPage() {
       <p className="mt-1 text-sm text-slate-600">
         Kelola seluruh isi situs {site.fullName}. Perubahan langsung tampil di halaman
         utama setelah disimpan.
+      </p>
+      <p className="mt-2 text-sm text-slate-600">
+        Foto unggahan disimpan di:{" "}
+        <strong>{storageDriver() === "r2" ? "Cloudflare R2" : "Database (Neon)"}</strong>
       </p>
 
       <Link
