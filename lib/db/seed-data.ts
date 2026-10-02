@@ -114,8 +114,8 @@ export const businesses = [
     icon: "coffee",
     accent: "orange",
     title: "Warung Angkringan",
-    description: "Warung angkringan yang dikelola panti.",
-    image: null,
+    description: "Warung Asih, warung angkringan yang dikelola panti.",
+    image: "/images/warung-asih.jpg",
   },
   {
     icon: "gallon",

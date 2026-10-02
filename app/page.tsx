@@ -1,8 +1,9 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { CopyButton } from "./components/CopyButton";
 import { Header } from "./components/Header";
 import { Icon } from "./components/Icon";
-import { getSiteData } from "@/lib/data";
+import { getProfile, getSiteData } from "@/lib/data";
 import type { AccentName } from "@/lib/entities";
 import { navLinks } from "@/lib/nav";
 import { iconNames, type IconName } from "./components/Icon";
@@ -75,6 +76,14 @@ function NumberedList({ items, tone }: { items: readonly string[]; tone: string 
       ))}
     </ol>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getProfile();
+  return {
+    title: `Beranda | ${site.fullName}`,
+    description: `${site.fullName} — ${site.address}. ${site.tagline}.`,
+  };
 }
 
 export default async function Home() {
@@ -612,6 +621,13 @@ export default async function Home() {
                     label: "Email",
                     value: site.email,
                     href: `mailto:${site.email}`,
+                  },
+                  {
+                    icon: "globe" as const,
+                    accent: "cyan" as const,
+                    label: "Website",
+                    value: site.website.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+                    href: site.website,
                   },
                   {
                     icon: "facebook" as const,
