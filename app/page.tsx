@@ -80,9 +80,20 @@ function NumberedList({ items, tone }: { items: readonly string[]; tone: string 
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getProfile();
+  const title = `Beranda | ${site.fullName}`;
+  const description = `${site.fullName} — ${site.address}. ${site.tagline}.`;
   return {
-    title: `Beranda | ${site.fullName}`,
-    description: `${site.fullName} — ${site.address}. ${site.tagline}.`,
+    title,
+    description,
+    // The preview image itself comes from app/opengraph-image.jpg.
+    openGraph: {
+      title,
+      description,
+      siteName: site.fullName,
+      locale: "id_ID",
+      type: "website",
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
