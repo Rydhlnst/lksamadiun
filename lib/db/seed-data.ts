@@ -94,7 +94,7 @@ export const businesses = [
     accent: "amber",
     title: "Peternakan",
     description: "Ayam, bebek petelur, mentok, dan soang.",
-    image: "/images/telur-asin.jpg",
+    image: "/images/peternakan-bebek.jpg",
   },
   {
     icon: "palette",
